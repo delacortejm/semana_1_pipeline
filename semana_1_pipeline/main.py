@@ -10,7 +10,7 @@ def main(input_path, output_path):
     logger.info("Inicio del pipeline")
 
     try:
-        logger.info("Cargando datos desde {input_path}")
+        logger.info(f"Cargando datos desde {input_path}")
         df = load_data(input_path)
 
         logger.info("Transformando datos")
@@ -20,7 +20,7 @@ def main(input_path, output_path):
         df = remove_empty_names(df)
         df = normalize_product_names(df)
         
-        logger.info("Guardando datos transformados en {output_path}")
+        logger.info(f"Guardando datos transformados en {output_path}")
         save_csv(df, output_path)
         
         logger.info("Pipeline finalizado con éxito")
@@ -33,4 +33,15 @@ def main(input_path, output_path):
         raise
     except Exception as e:
         logger.error(f"Error inesperado en el pipeline: {str(e)}")
-        raise
+        raise  
+   
+    if __name__ == "__main__":
+        parser = argparse.ArgumentParser(description="Pipeline de limpieza de datos de ventas")
+        parser.add_argument("--input", required=True, help="Ruta del archivo de entrada")
+        parser.add_argument("--output", required=True, help="Ruta del archivo de salida")
+        
+        args = parser.parse_args()
+        
+        main(args.input, args.output)
+    
+    #python main.py --input data/input.csv --output data/output/clean.csv
