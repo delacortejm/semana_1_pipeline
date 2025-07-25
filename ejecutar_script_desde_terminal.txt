@@ -1,0 +1,9 @@
+desde terminal:
+
+python main.py --input data/input.csv --output data/output/clean.csv
+
+Si te equivocás o te falta un argumento, argparse te avisa automáticamente:
+
+usage: main.py [-h] --input INPUT --output OUTPUT
+main.py: error: the following arguments are required: --input, --output
+
