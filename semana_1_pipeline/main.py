@@ -35,13 +35,13 @@ def main(input_path, output_path):
         logger.error(f"Error inesperado en el pipeline: {str(e)}")
         raise  
    
-    if __name__ == "__main__":
-        parser = argparse.ArgumentParser(description="Pipeline de limpieza de datos de ventas")
-        parser.add_argument("--input", required=True, help="Ruta del archivo de entrada")
-        parser.add_argument("--output", required=True, help="Ruta del archivo de salida")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Pipeline de limpieza de datos de ventas")
+    parser.add_argument("--input", required=True, help="Ruta del archivo de entrada")
+    parser.add_argument("--output", required=True, help="Ruta del archivo de salida")
         
-        args = parser.parse_args()
+    args = parser.parse_args()
         
-        main(args.input, args.output)
+    main(args.input, args.output)
     
     #python main.py --input data/input.csv --output data/output/clean.csv

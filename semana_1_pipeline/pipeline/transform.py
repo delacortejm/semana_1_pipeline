@@ -3,7 +3,7 @@ def clean_column_names(df):
     Limpia los nombres de las columnas del DataFrame.
     Elimina espacios y convierte a minúsculas.
     """
-    df.columns = df.columns.str.strip().str.lower()
+    df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')
     return df
 
 def drop_nulls(df):
@@ -34,16 +34,16 @@ def remove_empty_names(df):
     if 'vendedor' not in df.columns:
         raise ValueError("La columna 'vendedor' no existe en el DataFrame.")
 
-    df = df[df['nombre_vendedor'].notna() & (df['nombre_vendedor'] != "")]
+    df = df[df['vendedor'].notna() & (df['vendedor'] != "")]
     return df
 
 def normalize_product_names(df):
     """
     Normaliza los nombres de los productos, eliminando espacios y convirtiendo a minúsculas y sacando tildes.
     """
-    if 'nombre_producto' not in df.columns:
-        raise ValueError("La columna 'nombre_producto' no existe en el DataFrame.")
+    if 'producto' not in df.columns:
+        raise ValueError("La columna 'producto' no existe en el DataFrame.")
 
-    df['nombre_producto'] = df['nombre_producto'].str.strip().str.lower()
-    df['nombre_producto'] = df['nombre_producto'].str.normalize('NFD').str.encode('ascii', errors='ignore').str.decode('utf-8')
+    df['producto'] = df['producto'].str.strip().str.lower()
+    df['producto'] = df['producto'].str.normalize('NFD').str.encode('ascii', errors='ignore').str.decode('utf-8')
     return df
