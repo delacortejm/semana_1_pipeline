@@ -4,6 +4,7 @@ def clean_column_names(df):
     Elimina espacios y convierte a minúsculas.
     """
     df.columns = df.columns.str.strip().str.lower().str.replace(' ', '_')
+    print("Columnas limpiadas:", df.columns.tolist())
     return df
 
 def drop_nulls(df):

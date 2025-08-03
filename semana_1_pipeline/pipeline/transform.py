@@ -13,7 +13,7 @@ def drop_nulls(df):
     df = df.dropna()
     return df
 
-def filter_positive_values(df, column_name):
+def filter_positive_values(df):
     """
     Elimina filas donde la columna cantidad o precio_unitario es <= 0.
     """

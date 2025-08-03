@@ -20,8 +20,11 @@ def lambda_handler(event, context):
     df = pd.read_csv(response['Body'])
 
     # 3. Procesar datos
+    print("Columnas originales:", df.columns.tolist())
     df = clean_column_names(df)
+    print("Columnas originales:", df.columns.tolist())
     df = drop_nulls(df)
+    print("Columnas antes del filtro:", df.columns.tolist())
     df = filter_positive_values(df)
 
     # 4. Guardar resultado como CSV en memoria
