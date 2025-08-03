@@ -1,44 +1,42 @@
-import boto3
-import pandas as pd
-from io import StringIO
-from pipeline.transform import clean_column_names, drop_nulls, filter_positive_values
-from utils.logger import get_logger
-
-logger = get_logger()
-s3 = boto3.client('s3')
-
 def lambda_handler(event, context):
-    logger.info("Inicio del pipeline en Lambda")
+    try:
+        logger.info("Inicio del pipeline")
+        bucket = event['Records'][0]['s3']['bucket']['name']
+        key = event['Records'][0]['s3']['object']['key']
 
-    # 1. Obtener información del archivo subido
-    bucket = event['Records'][0]['s3']['bucket']['name']
-    key = event['Records'][0]['s3']['object']['key']
-    logger.info(f"Archivo recibido: s3://{bucket}/{key}")
+        if not key.endswith(".csv"):
+            logger.warning(f"Archivo ignorado: {key}")
+            return {"statusCode": 200, "body": "Archivo no procesado (no CSV)"}
 
-    # 2. Descargar archivo desde S3
-    response = s3.get_object(Bucket=bucket, Key=key)
-    df = pd.read_csv(response['Body'])
+        response = s3.get_object(Bucket=bucket, Key=key)
+        df = pd.read_csv(response['Body'])
 
-    # 3. Procesar datos
-    print("Columnas originales:", df.columns.tolist())
-    df = clean_column_names(df)
-    print("Columnas originales:", df.columns.tolist())
-    df = drop_nulls(df)
-    print("Columnas antes del filtro:", df.columns.tolist())
-    df = filter_positive_values(df)
+        if df.empty:
+            logger.warning("Archivo CSV está vacío")
+            return {"statusCode": 200, "body": "Archivo vacío"}
 
-    # 4. Guardar resultado como CSV en memoria
-    csv_buffer = StringIO()
-    df.to_csv(csv_buffer, index=False)
+        # Aplicar transformaciones
+        df = clean_column_names(df)
+        df = drop_nulls(df)
+        df = filter_positive_values(df, 'precio_unitario')
 
-    # 5. Subir archivo procesado al bucket de salida
-    output_key = key.replace("raw/", "processed/")
-    s3.put_object(
-        Bucket='ventas-pipeline-output',
-        Key=output_key,
-        Body=csv_buffer.getvalue()
-    )
+        # Guardar en S3
+        output_key = key.replace("raw/", "processed/")
+        csv_buffer = StringIO()
+        df.to_csv(csv_buffer, index=False)
+        s3.put_object(Bucket='ventas-pipeline-output', Key=output_key, Body=csv_buffer.getvalue())
 
-    logger.info(f"Archivo procesado guardado en: s3://ventas-pipeline-output/{output_key}")
-    return {"statusCode": 200, "body": "Pipeline ejecutado correctamente"}
+        logger.info(f"Archivo procesado y guardado: {output_key}")
+        return {"statusCode": 200, "body": "Proceso exitoso"}
 
+    except pd.errors.EmptyDataError:
+        logger.error("Error: archivo CSV vacío o ilegible")
+        return {"statusCode": 400, "body": "Archivo CSV ilegible"}
+
+    except KeyError as e:
+        logger.error(f"Error: columna faltante {e}")
+        return {"statusCode": 400, "body": f"Columna faltante: {str(e)}"}
+
+    except Exception as e:
+        logger.critical(f"Error inesperado: {e}")
+        raise  
