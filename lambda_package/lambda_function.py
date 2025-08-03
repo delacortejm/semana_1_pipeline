@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     # 3. Procesar datos
     df = clean_column_names(df)
     df = drop_nulls(df)
-    df = filter_positive_values(df, 'precio_unitario')
+    df = filter_positive_values(df)
 
     # 4. Guardar resultado como CSV en memoria
     csv_buffer = StringIO()
